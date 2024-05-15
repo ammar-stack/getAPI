@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'models/newmodel.dart';
+import 'models/new_data.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -15,15 +15,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final List<NewData> dataa = [];
 
-  final List<Newmodel> dataa = [];
-
-  Future<List<Newmodel>> getData() async{
-    var data = await http.get(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
+  Future<List<NewData>> getData() async {
+    var data =
+        await http.get(Uri.parse('https://jsonplaceholder.typicode.com/photos'));
     var jsonData = jsonDecode(data.body.toString());
-    if(data.statusCode == 200){
+    if(data.statusCode==200){
       for(Map i in jsonData){
-        dataa.add(Newmodel.fromJson(i as Map<String,dynamic>));
+        dataa.add(NewData.fromJson(i as Map<String,dynamic>));
       }
       return dataa;
     }
@@ -31,43 +31,44 @@ class _MyAppState extends State<MyApp> {
       return dataa;
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.amber,
-          title:const Text('API Response',style: TextStyle(fontWeight: FontWeight.bold),),
-          centerTitle: true,
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: FutureBuilder(
-                future: getData(), 
-                builder: (context,snapshot){
-                  if(snapshot.connectionState == ConnectionState.waiting){
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  else{
-                    return ListView.builder(
-                      itemCount: dataa.length,
-                      itemBuilder: (context,index){
-                        return ListTile(
-                          leading: Text(dataa[index].id.toString(),style:const TextStyle(fontSize: 25),),
-                          title: Text(dataa[index].title.toString(),style:const TextStyle(fontSize: 15)),
-                          subtitle: Text(dataa[index].body.toString(),style:const TextStyle(fontSize: 10)),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.amber,
+              title: const Text(
+                'API Response',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              centerTitle: true,
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: FutureBuilder(
+                    future: getData(), 
+                    builder: (context,snapshot){
+                      if(snapshot.connectionState == ConnectionState.waiting){
+                        return const Center(
+                          child: CircularProgressIndicator(),
                         );
-
-                      });
-                  }
-                }))
-          ],
-        )
-      )
-    );
+                      }
+                      else{
+                        return ListView.builder(
+                          itemCount: dataa.length,
+                          itemBuilder: (context,index){
+                            return ListTile(
+                              leading: Image.network(dataa[index].url.toString()),
+                              title: Text(dataa[index].title.toString()),
+                              subtitle: Text(dataa[index].thumbnailUrl.toString()),
+                            );
+                          });
+                      }
+                    }))
+              ],
+            )));
   }
 }
